@@ -1,0 +1,93 @@
+General Foreman API Docs:
+http://theforeman.org/api_v2.html
+http://www.theforeman.org/manuals/1.8/index.html
+
+# set variables
+FOREMAN_SERVER=
+FOREMAN_USER=
+FOREMAN_PASSWORD=
+FOREMAN_TESTNODE=
+
+# get host list
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H 'Accept:application/json,version=2' https://${FOREMAN_SERVER}/api/hosts
+
+# host status
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}/status
+
+##############################################################
+
+# get puppetclasses (all) REQUIRED FOR HOST CREATE
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H 'Accept:application/json,version=2' https://${FOREMAN_SERVER}/api/puppetclasses
+
+# get host puppet classes
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H 'Accept:application/json,version=2' https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}/puppetclass_ids
+
+##############################################################
+
+# get environment list REQUIRED FOR HOST CREATE
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H 'Accept:application/json,version=2' https://${FOREMAN_SERVER}/api/environments
+
+# get hostgroup list REQUIRED FOR HOST CREATE
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H 'Accept:application/json,version=2' https://${FOREMAN_SERVER}/api/hostgroups
+
+##############################################################
+
+# add host
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" -X POST -d '{"host":{"name":"${FOREMAN_TESTNODE}","hostgroup_id":"1","managed": false,"environment_id":"3"}}'  https://${FOREMAN_SERVER}/api/hosts
+
+# delete host
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" -X DELETE  https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}
+
+# delete certificate (the requesting host must be allowed to do so in /etc/foreman-proxy/settings.yml)
+curl -k -H "Accept: version=2,application/json" -H "Content-Type: application/json" -X DELETE https://${FOREMAN_SERVER}:8443/puppet/ca/${FOREMAN_TESTNODE}
+
+# add puppet class to hosts (get class ids from above)
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" -d '{"puppetclass_id":"280"}' -X POST https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}/puppetclass_ids
+
+# start puppetrun
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" -X PUT https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}/puppetrun
+
+# get reports
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}/reports/last
+
+##############################################################
+
+# get smart class parameters for a class
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H 'Accept:application/json,version=2' https://${FOREMAN_SERVER}/api/environments/dev/puppetclasses/305/smart_class_parameters
+
+# set smart class parameters for one host
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" -X POST -d '{"override_value": {"match": "fqdn=${FOREMAN_TESTNODE}","value": "fluffy"}}'  https://${FOREMAN_SERVER}/api/smart_class_parameters/902/override_values
+
+# set smart class parameter as hash. Not working at the moment!
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" -X POST -d '{"override_value": {"match": "fqdn=${FOREMAN_TESTNODE}","value": {"D214TEST":{"db2_dbname":"D214TEST","db2_schema":"demo.sql","db2_dbvg":"datavg","db2_lv_d01":"5G","db2_lv_log":"1G"}}}}' https://${FOREMAN_SERVER}/api/smart_class_parameters/905/override_values
+
+# get smart class parameters for one host
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H 'Accept:application/json,version=2' https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}/smart_class_parameters
+
+# update smart class parameter for a host
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" -X PUT -d '{"override_value": {"match": "fqdn=${FOREMAN_TESTNODE}","value": "fluffy"}}'  https://${FOREMAN_SERVER}/api/smart_class_parameters/906/override_values/28
+
+# get smart parameter override list
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" https://${FOREMAN_SERVER}/api/smart_class_parameters/906/override_values
+
+##############################################################
+
+# update fact
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" -X POST -d '{"name":"${FOREMAN_TESTNODE}", "facts": {"stefan":"Idiot","operatingsystem":"BlahLinux","operatingsystemrelease": "4"}}' https://${FOREMAN_SERVER}/api/hosts/facts
+
+##############################################################
+
+# create global parameter for a host
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" -X POST -d '{"parameter": {"name":"PARAM1", "value": "Value1"}}’  https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}/parameters
+
+# get global parameters for a host
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json"   https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}/parameters
+
+# get one global parameter for a host
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json"   https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}/parameters/2
+
+# update global parameters for a host
+curl -k -u ${FOREMAN_USER}:${FOREMAN_PASSWORD} -H "Accept: version=2,application/json" -H "Content-Type: application/json" -X PUT -d '{"parameter": {"name":"PARAM1", "value": "Value1"}}’  https://${FOREMAN_SERVER}/api/hosts/${FOREMAN_TESTNODE}/parameters/2
+
+
+
