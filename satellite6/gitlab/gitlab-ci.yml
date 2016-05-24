@@ -1,0 +1,67 @@
+stages:
+ - build
+ - import
+ - update_puppet_cv
+ - update_ccvs
+ - stage_dev
+ - deploy_dev
+ - stage_qas
+ - deploy_qas
+ - stage_prd
+ - deploy_prd
+
+build_modules:
+  stage: build
+  script:
+   - pwd
+   - echo $CI_PROJECT_DIR
+   - rm -f /opt/puppet/repo/*
+   - for i in $(ls $CI_PROJECT_DIR); do cd $CI_PROJECT_DIR/$i; pulp-puppet-module-builder -o /opt/puppet/repo; done
+  only:
+   - master
+
+import_modules:
+  stage: import
+  script:
+   - hammer repository synchronize --name custom-common-puppet --product XXX_COMMON --organization=XXX
+  dependencies:
+   - build_modules
+  only:
+   - master
+
+update_puppet_content_view:
+  stage: update_puppet_cv
+  script:
+   - hammer content-view publish --name cv-common-custom-puppet --organization XXX
+  dependencies:
+   - import_modules
+  only:
+   - master
+
+update_composite_views:
+  stage: update_ccvs
+  script:
+   - /opt/scripts/update_puppetccvs.sh
+  dependencies:
+   - update_puppet_content_view
+  only:
+   - master
+
+stage_to_dev:
+  stage: stage_dev
+  script:
+   - /opt/scripts/stage_puppetccvs.sh dev
+  dependencies:
+   - update_composite_views
+  only:
+   - master
+
+deploy_to_dev:
+  stage: deploy_dev
+  script:
+   - ssh root@XXX 'puppet agent -t'
+  dependencies:
+   - stage_to_dev
+  only:
+   - master
+
