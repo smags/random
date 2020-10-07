@@ -1,0 +1,38 @@
+---
+  - name: Install required packages
+    dnf:
+      name:
+        - mod_auth_openidc
+        - ovirt-engine-extension-aaa-misc
+      state: present
+
+  - name: config file ovirt-openidc.conf
+    template:
+      src: ovirt-openidc.conf.j2
+      dest: /etc/httpd/conf.d/ovirt-openidc.conf
+    notify: httpd
+
+  - name: config file openidc-authn.properties
+    template:
+      src: openidc-authn.properties.j2
+      dest: /etc/ovirt-engine/extensions.d/openidc-authn.properties
+    notify: ovirt-engine
+
+  - name: config file openidc-http-mapping.properties 
+    template:
+      src: openidc-http-mapping.properties.j2
+      dest: /etc/ovirt-engine/extensions.d/openidc-http-mapping.properties
+    notify: ovirt-engine
+
+  - name: config file openidc-authz.properties 
+    template:
+      src: openidc-authz.properties.j2
+      dest: /etc/ovirt-engine/extensions.d/openidc-authz.properties
+    notify: ovirt-engine
+
+  - name: config file 99-enable-external-auth.conf 
+    template:
+      src: 99-enable-external-auth.conf.j2
+      dest: /etc/ovirt-engine/engine.conf.d/99-enable-external-auth.conf
+    notify: ovirt-engine
+

@@ -1,0 +1,8 @@
+---
+sso_server_name: sso.example.com
+sso_server_port: my_sso_server_port
+sso_realm: my_realm_name
+sso_client_id: my_client_id
+sso_client_secret: my_client_secret
+rhv_server_name: "{{ inventory_hostname }}"
+

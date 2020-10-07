@@ -1,0 +1,31 @@
+LoadModule auth_openidc_module modules/mod_auth_openidc.so
+ServerName {{ rhv_server_name }}
+OIDCProviderMetadataURL https://{{ sso_server_name }}:{{ sso_server_port }}/auth/realms/{{ sso_realm }}/.well-known/openid-configuration
+OIDCSSLValidateServer Off
+OIDCClientID {{ sso_client_id }}
+OIDCClientSecret {{ sso_client_secret }}
+OIDCRedirectURI https://{{ rhv_server_name }}/ovirt-engine/callback
+OIDCDefaultURL https://{{ rhv_server_name }}/ovirt-engine/login?scope=ovirt-app-admin+ovirt-app-portal+ovirt-ext%3Dauth%3Asequence-priority%3D%7E
+# maps the prefered_username claim to the REMOTE_USER environment variable
+OIDCRemoteUserClaim preferred_username
+OIDCCryptoPassphrase random1234
+
+<LocationMatch ^/ovirt-engine/sso/(interactive-login-negotiate|oauth/token-http-auth)|^/ovirt-engine/callback>
+    <If "req('Authorization') !~ /^(Bearer|Basic)/i">
+        Require valid-user
+        AuthType openid-connect
+        ErrorDocument 401 "<html><meta http-equiv=\"refresh\" content=\"0; url=/ovirt-engine/sso/login-unauthorized\"/><body><a href=\"/ovirt-engine/sso/login-unauthorized\">Here</a></body></html>"
+    </If>
+</LocationMatch>
+
+OIDCOAuthIntrospectionEndpoint https://{{ sso_server_name }}:{{ sso_server_port }}/auth/realms/{{ sso_realm }}/protocol/openid-connect/token/introspect
+OIDCOAuthSSLValidateServer Off
+OIDCOAuthIntrospectionEndpointParams token_type_hint=access_token
+OIDCOAuthClientID {{ sso_client_id }}
+OIDCOAuthClientSecret {{ sso_client_secret }}
+OIDCOAuthRemoteUserClaim sub
+
+<LocationMatch ^/ovirt-engine/(api$|api/)>
+   AuthType oauth20
+   Require valid-user
+</LocationMatch>

@@ -1,0 +1,11 @@
+---
+- name: httpd
+  ansible.builtin.service:
+     name: httpd
+     state: restarted
+
+- name: ovirt-engine
+  ansible.builtin.service:
+     name: ovirt-engine
+     state: restarted
+

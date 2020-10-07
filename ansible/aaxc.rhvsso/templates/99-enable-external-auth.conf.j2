@@ -1,0 +1,11 @@
+ENGINE_SSO_ENABLE_EXTERNAL_SSO=true
+ENGINE_SSO_EXTERNAL_SSO_LOGOUT_URI="${ENGINE_URI}/callback"
+EXTERNAL_OIDC_USER_INFO_END_POINT=https://{{ sso_server_name }}:{{ sso_server_port }}/auth/realms/{{ sso_realm }}/protocol/openid-connect/userinfo
+EXTERNAL_OIDC_TOKEN_END_POINT=https://{{ sso_server_name }}:{{ sso_server_port }}/auth/realms/{{ sso_realm }}/protocol/openid-connect/token
+EXTERNAL_OIDC_LOGOUT_END_POINT=https://{{ sso_server_name }}:{{ sso_server_port }}/auth/realms/{{ sso_realm }}/protocol/openid-connect/logout
+EXTERNAL_OIDC_CLIENT_ID={{ sso_client_id }}
+EXTERNAL_OIDC_CLIENT_SECRET="{{ sso_client_secret }}"
+EXTERNAL_OIDC_HTTPS_PKI_TRUST_STORE="/etc/pki/java/cacerts"
+EXTERNAL_OIDC_HTTPS_PKI_TRUST_STORE_PASSWORD=""
+EXTERNAL_OIDC_SSL_VERIFY_CHAIN=true
+EXTERNAL_OIDC_SSL_VERIFY_HOST=true
