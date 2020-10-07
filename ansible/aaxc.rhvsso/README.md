@@ -6,9 +6,7 @@ This role enable Red Hat Single Sign On / Keycloak on Red Hat Virtualization / O
 Requirements
 ------------
 
-This role requires that the mod_auth_openidc is enabled:
-
-        # dnf module enable mod_auth_openidc:2.3 -y
+- none
 
 Role Variables
 --------------

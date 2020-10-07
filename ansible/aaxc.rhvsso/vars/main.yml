@@ -1,2 +1,5 @@
 ---
 
+# What mod_auth_openidc module stream to use
+mod_auth_openidc_ver: 2.3
+

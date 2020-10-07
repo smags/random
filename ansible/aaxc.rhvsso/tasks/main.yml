@@ -1,4 +1,9 @@
 ---
+  - name: enable mod_auth_openidc module stream
+    template:
+      src: mod_auth_openidc.module.j2
+      dest: /etc/dnf/modules.d/mod_auth_openidc.module
+  
   - name: Install required packages
     dnf:
       name:
